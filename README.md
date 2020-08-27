@@ -47,7 +47,7 @@ Look at the following line where it says `mysql.format()`. What do you think goe
 
 The route is going to look like this: http://localhost:4001/users/
 
-We are going to need to use Postman to access this route since it is now a POST request. 
+We are going to need to use Postman to access this route since it is now a POST request.
 
 We are going to send a body with the request that looks like this:
 
