@@ -2,9 +2,16 @@ const mysql = require('mysql')
 const pool = require('../sql/connection')
 const { handleSQLError } = require('../sql/error')
 
+
+// ### Create a full Query
+
+// - In your getAllUsers return all fields of all users including the fields of usersContact & usersAddress
 const getAllUsers = (req, res) => {
   // SELECT ALL USERS
-  pool.query("SELECT * FROM users", (err, rows) => {
+let sql = `SELECT * FROM users JOIN usersAddress, usersContact WHERE users.id = usersAddress.user_id AND users.id = usersContact.user_id;`
+  // WHAT GOES IN THE BRACKETS
+  sql = mysql.format(sql, [])
+  pool.query(sql, (err, rows) => {
     if (err) return handleSQLError(res, err)
     return res.json(rows);
   })
@@ -12,7 +19,7 @@ const getAllUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   // SELECT USERS WHERE ID = <REQ PARAMS ID>
-  let sql = "SELECT * FROM users WHERE id = ?"
+  let sql = `SELECT * FROM users JOIN usersAddress, usersContact WHERE users.id = usersAddress.user_id AND users.id = usersContact.user_id AND users.id = ?;`
   // WHAT GOES IN THE BRACKETS
   // Format expects two arguments a string and an array
   sql = mysql.format(sql, [req.params.id])
@@ -23,6 +30,7 @@ const getUserById = (req, res) => {
   })
 }
 
+//  In your createUser be sure that a complete user is created including all fields in usersContact & usersAddress
 const createUser = (req, res) => {
   // INSERT INTO USERS FIRST AND LAST NAME
   let sql = "INSERT INTO users (first_name, last_name) VALUES (?, ?);"
@@ -37,9 +45,9 @@ const createUser = (req, res) => {
 
 const updateUserById = (req, res) => {
   // UPDATE USERS AND SET FIRST AND LAST NAME WHERE ID = <REQ PARAMS ID>
-  let sql = ""
+  let sql = "UPDATE users SET first_name = '?', last_name = '?' WHERE id = ?;"
   // WHAT GOES IN THE BRACKETS
-  sql = mysql.format(sql, [])
+  sql = mysql.format(sql, [req.body.first_name, req.body.last_name])
 
   pool.query(sql, (err, results) => {
     if (err) return handleSQLError(res, err)
@@ -49,9 +57,9 @@ const updateUserById = (req, res) => {
 
 const deleteUserByFirstName = (req, res) => {
   // DELETE FROM USERS WHERE FIRST NAME = <REQ PARAMS FIRST_NAME>
-  let sql = ""
+  let sql = "DELETE FROM users WHERE first_name = '?'"
   // WHAT GOES IN THE BRACKETS
-  sql = mysql.format(sql, [])
+  sql = mysql.format(sql, [req.body.first_name])
 
   pool.query(sql, (err, results) => {
     if (err) return handleSQLError(res, err)
